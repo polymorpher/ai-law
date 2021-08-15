@@ -14,10 +14,13 @@ else:
     print('Using Lemma+POS')
 
 S3_BUCKET = os.getenv('S3_BUCKET', 'ai-law')
-S3_PATH = os.getenv('S3_PATH', 'cases')
-S3_TEXT_OUT_PATH = os.getenv('S3_TEXT_OUT_PATH', 'cases_processed/text')
-S3_HOLDING_OUT_PATH = os.getenv('S3_TEXT_OUT_PATH', 'cases_processed/holding')
+S3_PATH = os.getenv('S3_PATH', 'cases/')
+S3_TEXT_OUT_PATH = os.getenv('S3_TEXT_OUT_PATH', 'cases_processed/text/')
+S3_HOLDING_OUT_PATH = os.getenv('S3_TEXT_OUT_PATH', 'cases_processed/holding/')
 
 CACHE = os.getenv('CACHE', 'tmp/cache')
 CACHE_OUT = os.getenv('CACHE_OUT', 'tmp/out')
 CACHE_HOLDING = os.getenv('CACHE_HOLDING', 'tmp/holding')
+
+def concat(delim='', *args) -> str:
+    return delim.join([a for a in args if a])
