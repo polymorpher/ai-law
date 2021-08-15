@@ -16,12 +16,14 @@ def build_cleaner():
 
 
 def extract_html(data: str, parser: html.HTMLParser, cleaner: Cleaner):
-    tree = html.fromstring(data, parser=parser).getroot()
+    tree = html.fromstring(data, parser=parser)  # .getroot()
     selected = tree.cssselect('.opinion_text')
     texts = []
     if len(selected) < 1:
+        selected = tree.cssselect('.level')
+    if len(selected) < 1:
         print(f'File has no opinion text. Skipping')
-        return None
+        return None, []
     for el in selected:
         cleaned_tree = cleaner.clean_html(el)
         text = cleaned_tree.text_content().__str__()
