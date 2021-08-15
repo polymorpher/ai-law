@@ -9,31 +9,34 @@ load_dotenv()
 s3: Client = boto3.client('s3')
 
 
-def concat(*args) -> str:
-    return '/'.join(args)
-
-
 class AWSFeeder:
-    def list(self, prefix: str = None, after: str = None, limit: int = None, count: int = 0):
-        res = s3.list_objects_v2(Bucket=vars.S3_BUCKET, Prefix=concat(vars.S3_PATH, prefix), StartAfter=after,
-                                 MaxKeys=limit, Delimiter='/')
-        ret = list([item['Key'] for item in res['Contents']])
-        if res['IsTruncated'] and count + len(ret) < limit:
-            return ret.extend(
-                self.list(prefix=prefix, after=res['NextContinuationToken'], limit=limit, count=count + len(ret)))
-        return ret
+    def list(self, prefix: str = None, after: str = '', limit: int = 2 ** 30, count: int = 0):
+        res = s3.list_objects_v2(Bucket=vars.S3_BUCKET, Prefix=prefix,
+                                 StartAfter=after, MaxKeys=limit, Delimiter='/')
+        dirs = list([p['Prefix'] for p in res['CommonPrefixes']])
+        keys = list([item['Key'] for item in res['Contents']])
+        if res['IsTruncated'] and count + len(keys) < limit:
+            new_keys, new_dirs = self.list(prefix=prefix, after=res['NextContinuationToken'], limit=limit,
+                                           count=count + len(keys))
+            return keys.extend(new_keys), dirs.extend(new_dirs)
+        return keys, dirs
 
-    def scan_prefix(self, prefix: str, on_next: typing.Callable, on_error: typing.Callable):
-        keys = self.list(prefix=concat(vars.S3_PATH, prefix))
+    def scan_prefix(self, prefix: str, key_processor: typing.Callable, on_next: typing.Callable,
+                    on_error: typing.Callable):
+        keys, _ = self.list(prefix=prefix)
         filenames = []
         for key in keys:
-            filename = concat(vars.CACHE, key)
-            try:
-                s3.download_file(Bucket=vars.S3_BUCKET,
-                                 Key=concat(vars.S3_PATH, prefix, key),
-                                 Filename=filename)
-                filenames.append(filename)
-            except Exception as e:
-                on_error(e)
-            on_next(filename)
+            keyfrag = key_processor(key)
+            if keyfrag:
+                filename = vars.concat(vars.CACHE, keyfrag)
+                print('downloading to ', filename)
+                try:
+                    s3.download_file(Bucket=vars.S3_BUCKET, Key=key, Filename=filename)
+                    filenames.append(filename)
+                except Exception as e:
+                    on_error(e)
+                on_next(filename)
         return filenames
+
+    def upload(self, key: str, filename: str):
+        pass
