@@ -36,11 +36,6 @@ if __name__ == '__main__':
         return key.split('/')[-1]
 
 
-    # feeder.scan_prefix(prefix=case_dirs[0], key_processor=key_processor, on_next=on_next,
-    #                    on_error=on_error)
-
-    # extractor.local_extract_holdings_all()
-
     def upload_all(year):
         files = extractor.list_all_text_files()
         for f in files:
@@ -54,4 +49,11 @@ if __name__ == '__main__':
         print(f'[{year}] Uploaded {len(files)} extracted holdings')
 
 
-    upload_all(case_years[0])
+    extractor.clear_cache()
+    for i in range(len(case_dirs)):
+        feeder.scan_prefix(prefix=case_dirs[i], key_processor=key_processor, on_next=on_next,
+                           on_error=on_error)
+
+        extractor.local_extract_holdings_all()
+        upload_all(case_years[i])
+        extractor.clear_cache()
