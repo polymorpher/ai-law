@@ -67,3 +67,18 @@ class Extractor:
 
     def list_all_holding_files(self):
         return os.listdir(Path(self.holiding_out_path))
+
+    def clear_cache(self):
+        files = os.listdir(Path(self.data_path))
+        for f in files:
+            p = os.path.join(self.data_path, f)
+            os.unlink(p)
+        files = os.listdir(Path(self.text_out_path))
+        for f in files:
+            p = os.path.join(self.text_out_path, f)
+            os.unlink(p)
+        files = os.listdir(Path(self.holiding_out_path))
+        for f in files:
+            p = os.path.join(self.holiding_out_path, f)
+            os.unlink(p)
+        print('Cleared caches for: data, holding, and text')
