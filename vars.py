@@ -22,5 +22,6 @@ CACHE = os.getenv('CACHE', 'tmp/cache')
 CACHE_OUT = os.getenv('CACHE_OUT', 'tmp/out')
 CACHE_HOLDING = os.getenv('CACHE_HOLDING', 'tmp/holding')
 
-def concat(delim='', *args) -> str:
+
+def concat(*args, delim='/') -> str:
     return delim.join([a for a in args if a])
