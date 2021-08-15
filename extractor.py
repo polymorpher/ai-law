@@ -61,3 +61,9 @@ class Extractor:
         all_holdings_text = '\n'.join(combined)  # [f'{r}' for r in combined]
         Path(os.path.join(self.holiding_out_path, 'all.csv')).write_text(all_holdings_text)
         # input('Press any key to continue:')
+
+    def list_all_text_files(self):
+        return os.listdir(Path(self.text_out_path))
+
+    def list_all_holding_files(self):
+        return os.listdir(Path(self.holiding_out_path))
