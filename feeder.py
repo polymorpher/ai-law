@@ -39,4 +39,6 @@ class AWSFeeder:
         return filenames
 
     def upload(self, key: str, filename: str):
-        pass
+        print(f'Uploading {filename} to {key}')
+        s3.upload_file(Filename=filename, Bucket=vars.S3_BUCKET, Key=key)
+
